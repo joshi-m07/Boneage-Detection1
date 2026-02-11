@@ -6,7 +6,7 @@
 *.pb
 
 # MLflow tracking
-mlruns/
+
 
 # Database
 *.db
@@ -14,7 +14,7 @@ mlruns/
 *.sqlite3
 
 # Storage
-storage/
+
 
 # Python
 __pycache__/
