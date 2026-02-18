@@ -22,6 +22,7 @@ class MLflowConfig:
         
         mlflow.set_experiment(experiment_name)
         print(f"✓ MLflow initialized: {experiment_name}")
+        print(f"  └─ Tracking URI: {self.tracking_uri}")
     
     def start_run(self, run_name=None):
         """Start a new MLflow run"""
@@ -37,9 +38,29 @@ class MLflowConfig:
         """Log metrics to MLflow"""
         mlflow.log_metrics(metrics)
     
+    def log_tags(self, tags: dict):
+        """Log tags to MLflow run"""
+        mlflow.set_tags(tags)
+    
     def log_artifact(self, artifact_path: str):
-        """Log artifact file to MLflow"""
-        mlflow.log_artifact(artifact_path)
+        """Log artifact file to MLflow (root artifacts folder)"""
+        if os.path.exists(artifact_path):
+            mlflow.log_artifact(artifact_path)
+        else:
+            print(f"  ⚠ Artifact not found, skipping: {artifact_path}")
+    
+    def log_artifact_subdir(self, artifact_path: str, subdir: str):
+        """
+        Log artifact file to MLflow under a named subdirectory.
+        
+        Args:
+            artifact_path: Local path to the artifact file
+            subdir: Subdirectory name inside the MLflow artifacts folder (e.g. 'male', 'female')
+        """
+        if os.path.exists(artifact_path):
+            mlflow.log_artifact(artifact_path, artifact_path=subdir)
+        else:
+            print(f"  ⚠ Artifact not found, skipping: {artifact_path}")
     
     def log_image(self, image_path: str, artifact_file: str = None):
         """Log image artifact to MLflow"""

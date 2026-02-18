@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/joshi/OneDrive/Desktop/Boneage_Detection/Boneage-Detection/mlruns/870368711535130977/48e47bc3131149edac8e4e49cee18d3b/artifacts
+end_time: 1771429297326
+entry_point_name: ''
+experiment_id: '870368711535130977'
+lifecycle_stage: active
+run_id: 48e47bc3131149edac8e4e49cee18d3b
+run_name: patient_PATIENT_20260218_211129
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1771429293755
+status: 3
+tags: []
+user_id: joshi

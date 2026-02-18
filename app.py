@@ -42,15 +42,20 @@ def normalize_path_for_storage(path):
 @app.on_event("startup")
 async def startup_event():
     """Initialize database and models on startup"""
-    print("=" * 50)
-    print("🚀 Starting Bone Age Estimation API")
-    print("=" * 50)
+    print("\n" + "=" * 60)
+    print("🚀  BONE AGE ESTIMATION API — STARTUP")
+    print("=" * 60)
+    print("  📦 Initializing database...")
     init_db()
-    # Preload models
+    print("  ✓  Database initialized")
+    print("  🦴 Loading bone age models...")
+    print(f"     Male   model : male_boneage_model.pth")
+    print(f"     Female model : female_boneage_model.pth")
+    # Preload models (detailed logs come from ModelInference)
     get_inference_model()
-    print("=" * 50)
-    print("✅ API Ready!")
-    print("=" * 50)
+    print("=" * 60)
+    print("✅  API Ready! Listening on http://0.0.0.0:8000")
+    print("=" * 60 + "\n")
 
 
 @app.get("/")
@@ -117,17 +122,31 @@ async def predict_bone_age(
         run = mlflow_config.start_run(run_name=f"patient_{patient_id}")
         run_id = mlflow_config.get_run_id()
         
-        # Log parameters
+        # Resolve model paths for logging
+        inference_model = get_inference_model()
+        male_model_path_abs = inference_model.male_model_path
+        female_model_path_abs = inference_model.female_model_path or "N/A (using male model)"
+        female_model_available = inference_model.female_model_available
+
+        # Log parameters (including model paths for traceability)
         mlflow_config.log_params({
             "patient_id": patient_id,
             "gender": "unknown",  # As per pipeline diagram
             "image_size": f"{pil_image.size[0]}x{pil_image.size[1]}",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "male_model_path": os.path.basename(male_model_path_abs),
+            "female_model_path": os.path.basename(female_model_path_abs) if female_model_available else "fallback_male",
+            "female_model_available": str(female_model_available),
+        })
+
+        # Tag the run with model info
+        mlflow_config.log_tags({
+            "male_model": os.path.basename(male_model_path_abs),
+            "female_model": os.path.basename(female_model_path_abs) if female_model_available else "fallback_male",
+            "pipeline_version": "dual_model_v1",
         })
         
         # ===== STEP 4-6: Male Model Inference =====
-        inference_model = get_inference_model()
-        
         # Male prediction
         male_result = inference_model.infer_male(pil_image)
         male_age = male_result['age']
@@ -167,6 +186,7 @@ async def predict_bone_age(
         )
         
         # ===== STEP 8: MLflow Logging =====
+        # Log metrics for both models
         mlflow_config.log_metrics({
             "male_age": male_age,
             "male_uncertainty": male_uncertainty,
@@ -174,10 +194,10 @@ async def predict_bone_age(
             "female_uncertainty": female_uncertainty,
         })
         
-        # Log artifacts
-        mlflow_config.log_artifact(original_image_path)
-        mlflow_config.log_artifact(male_gradcam_path)
-        mlflow_config.log_artifact(female_gradcam_path)
+        # Log artifacts organized by gender subdirectory
+        mlflow_config.log_artifact(original_image_path)                          # root: original image
+        mlflow_config.log_artifact_subdir(male_gradcam_path, "male")             # male/ subdir
+        mlflow_config.log_artifact_subdir(female_gradcam_path, "female")         # female/ subdir
         
         # End MLflow run
         mlflow_config.end_run()
