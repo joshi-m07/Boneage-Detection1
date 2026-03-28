@@ -26,17 +26,29 @@ class ModelInference:
             device: Device to run inference on ('cpu' or 'cuda')
         """
         self.device = torch.device(device if torch.cuda.is_available() else 'cpu')
-        print(f"Using device: {self.device}")
-        
+        self.male_model_path = os.path.abspath(male_model_path)
+        self.female_model_path = os.path.abspath(female_model_path) if female_model_path else None
+        self.female_model_available = False
+
+        print("\n" + "=" * 60)
+        print("🦴  BONE AGE MODEL LOADER")
+        print("=" * 60)
+        print(f"  Device       : {self.device}")
+        print(f"  Male model   : {self.male_model_path}")
+        print(f"  Female model : {self.female_model_path if self.female_model_path else 'Not specified'}")
+        print("-" * 60)
+
         # Load male model
-        self.male_model = self._load_model(male_model_path, "Male")
+        self.male_model = self._load_model(self.male_model_path, "Male")
         
         # Load female model (use male model if female not available)
-        if female_model_path and os.path.exists(female_model_path):
-            self.female_model = self._load_model(female_model_path, "Female")
+        if self.female_model_path and os.path.exists(self.female_model_path):
+            self.female_model = self._load_model(self.female_model_path, "Female")
+            self.female_model_available = True
         else:
-            print("⚠ Female model not found, using male model for both predictions")
+            print("⚠  Female model not found — using Male model as fallback for Female predictions")
             self.female_model = self.male_model
+            self.female_model_available = False
         
         # Age group mapping (0-3 years ranges)
         self.age_groups = {
@@ -49,10 +61,26 @@ class ModelInference:
         # Setup Grad-CAM
         self.male_gradcam = create_gradcam(self.male_model, self.male_model.ca)
         self.female_gradcam = create_gradcam(self.female_model, self.female_model.ca)
+
+        # Print summary table
+        print("-" * 60)
+        print("📋  MODEL LOAD SUMMARY")
+        print("-" * 60)
+        male_size_mb = os.path.getsize(self.male_model_path) / (1024 * 1024)
+        print(f"  {'Model':<12} {'Status':<10} {'Size':>10}  Path")
+        print(f"  {'─'*12} {'─'*10} {'─'*10}  {'─'*30}")
+        print(f"  {'Male':<12} {'✅ Loaded':<10} {male_size_mb:>8.1f}MB  {os.path.basename(self.male_model_path)}")
+        if self.female_model_available:
+            female_size_mb = os.path.getsize(self.female_model_path) / (1024 * 1024)
+            print(f"  {'Female':<12} {'✅ Loaded':<10} {female_size_mb:>8.1f}MB  {os.path.basename(self.female_model_path)}")
+        else:
+            print(f"  {'Female':<12} {'⚠ Fallback':<10} {'N/A':>10}  (using male model)")
+        print("=" * 60 + "\n")
     
     def _load_model(self, model_path, model_name):
         """Load model from checkpoint"""
         try:
+            print(f"  ⏳ Loading {model_name} model...")
             model = BoneAgeModel()
             checkpoint = torch.load(model_path, map_location=self.device)
             
@@ -66,10 +94,10 @@ class ModelInference:
             
             model.to(self.device)
             model.eval()
-            print(f"✓ {model_name} model loaded successfully")
+            print(f"  ✓  {model_name} model loaded successfully from: {model_path}")
             return model
         except Exception as e:
-            print(f"✗ Error loading {model_name} model: {e}")
+            print(f"  ✗  Error loading {model_name} model: {e}")
             raise
     
     def preprocess_image(self, image_input):
@@ -200,7 +228,9 @@ def get_inference_model():
     """Get or create global inference instance"""
     global _inference_instance
     if _inference_instance is None:
-        male_model_path = "male_boneage_model.pth"
-        female_model_path = "female_boneage_model.pth"
+        # Resolve paths relative to the project root (one level up from utils/)
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        male_model_path = os.path.join(base_dir, "male_boneage_model.pth")
+        female_model_path = os.path.join(base_dir, "female_boneage_model.pth")
         _inference_instance = ModelInference(male_model_path, female_model_path)
     return _inference_instance
