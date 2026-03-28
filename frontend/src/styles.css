@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-100 text-slate-800;
+    font-family: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  ::selection {
+    @apply bg-primary-200 text-primary-900;
+  }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.glass-card {
+  @apply relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-md shadow-slate-200/80 transition-shadow duration-300 hover:shadow-lg hover:shadow-slate-200/90;
+}
+
+.glass-card::before {
+  content: '';
+  @apply pointer-events-none absolute inset-0 rounded-2xl opacity-[0.35];
+  background: radial-gradient(800px 240px at 50% -20%, rgb(42 111 199 / 0.08), transparent 55%);
+}
+
+.glass-card-inner {
+  @apply relative z-10;
+}
+
+.kv-card {
+  @apply rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3.5 shadow-sm;
+}
+
+.model-card {
+  @apply relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm;
+}
+
+.btn-primary {
+  @apply relative inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary-900/15 transition hover:bg-primary-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-100 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50;
+}
+
+.input-base {
+  @apply block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20;
+}
+
+.dropzone {
+  @apply flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/80 px-4 py-7 text-center text-sm text-slate-600 shadow-inner transition hover:border-primary-400 hover:bg-primary-50/50 hover:text-slate-700;
+}
+
+.badge {
+  @apply inline-flex items-center rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-600 shadow-sm;
+}
+
+.badge-success {
+  @apply border-emerald-200 bg-emerald-50 text-emerald-800;
+}
+
+.stat-label {
+  @apply text-[10px] font-semibold uppercase tracking-wider text-slate-500;
+}
+
+.stat-value {
+  @apply text-2xl font-semibold tabular-nums tracking-tight text-primary-800;
+}
+
+.stat-subtext {
+  @apply text-xs leading-relaxed text-slate-500;
+}
+
+.step-pill {
+  @apply inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-primary-200 bg-primary-50 text-[11px] font-bold text-primary-800;
+}
+
+.tile-title {
+  @apply text-sm font-semibold tracking-tight text-slate-800;
+}
+
+.tile-desc {
+  @apply text-xs leading-relaxed text-slate-500;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes landing-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-landing-in {
+  animation: landing-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-in {
+  animation: page-in 0.38s ease-out both;
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 1.8s ease-in-out infinite;
+}
+
+.prediction-card-male {
+  @apply border-l-[3px] border-l-primary-500;
+}
+
+.prediction-card-female {
+  @apply border-l-[3px] border-l-sky-400;
+}
+
+.app-bg-grid {
+  background-image:
+    linear-gradient(rgb(148 163 184 / 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(148 163 184 / 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+}

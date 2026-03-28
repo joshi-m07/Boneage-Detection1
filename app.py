@@ -1,10 +1,12 @@
 from fastapi import FastAPI, File, UploadFile, Form, Depends, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from PIL import Image
 import io
 import os
 import shutil
+from urllib.parse import quote
 from datetime import datetime
 
 from database.db import get_db, init_db
@@ -20,9 +22,18 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Storage directory
-STORAGE_DIR = "storage/patients"
+# Storage: absolute paths so files + StaticFiles work regardless of process cwd
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+_STORAGE_ROOT = os.path.join(_BASE_DIR, "storage")
+STORAGE_DIR = os.path.join(_STORAGE_ROOT, "patients")
 os.makedirs(STORAGE_DIR, exist_ok=True)
+
+# Serve originals + Grad-CAM at /storage/patients/<patient_id>/...
+app.mount(
+    "/storage",
+    StaticFiles(directory=_STORAGE_ROOT),
+    name="storage",
+)
 
 
 def normalize_path_for_storage(path):
@@ -201,6 +212,8 @@ async def predict_bone_age(
         # Use relative paths for portability across different machines
         male_gradcam_relative = os.path.relpath(male_gradcam_path)
         female_gradcam_relative = os.path.relpath(female_gradcam_path)
+        # StaticFiles mounts "storage" at /storage — files live under storage/patients/<id>/
+        patient_url_segment = quote(str(patient_id), safe="")
         
         response = {
             "status": "success",
@@ -211,13 +224,13 @@ async def predict_bone_age(
                 "age": round(male_age, 2),
                 "uncertainty_sigma": round(male_uncertainty, 3),
                 "gradcam_path": male_gradcam_relative,
-                "gradcam_url": f"/storage/{patient_id}/male_gradcam.png"
+                "gradcam_url": f"/storage/patients/{patient_url_segment}/male_gradcam.png"
             },
             "female_prediction": {
                 "age": round(female_age, 2),
                 "uncertainty_sigma": round(female_uncertainty, 3),
                 "gradcam_path": female_gradcam_relative,
-                "gradcam_url": f"/storage/{patient_id}/female_gradcam.png"
+                "gradcam_url": f"/storage/patients/{patient_url_segment}/female_gradcam.png"
             },
             "timestamp": datetime.now().isoformat(),
             "message": "Male & Female Bone Age Results"
