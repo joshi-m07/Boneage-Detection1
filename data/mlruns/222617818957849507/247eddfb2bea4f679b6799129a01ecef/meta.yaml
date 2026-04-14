@@ -1,0 +1,14 @@
+artifact_uri: /Users/I763842/Boneage-Detection1/data/mlruns/222617818957849507/247eddfb2bea4f679b6799129a01ecef/artifacts
+end_time: 1776158367314
+entry_point_name: ''
+experiment_id: '222617818957849507'
+lifecycle_stage: active
+run_id: 247eddfb2bea4f679b6799129a01ecef
+run_name: patient_PATIENT_20260414_144518
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1776158366849
+status: 3
+tags: []
+user_id: I763842

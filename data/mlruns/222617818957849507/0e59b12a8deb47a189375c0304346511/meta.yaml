@@ -1,0 +1,14 @@
+artifact_uri: /Users/I763842/Boneage-Detection1/data/mlruns/222617818957849507/0e59b12a8deb47a189375c0304346511/artifacts
+end_time: 1771518407955
+entry_point_name: ''
+experiment_id: '222617818957849507'
+lifecycle_stage: active
+run_id: 0e59b12a8deb47a189375c0304346511
+run_name: patient_PATIENT_20260219_215318
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1771518371114
+status: 3
+tags: []
+user_id: DELL
